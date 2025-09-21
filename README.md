@@ -1,4 +1,4 @@
-# Artisan SaaS Platform
+# Artisan SaaS Platform KalaKart[]
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/Arsan-sk/artisan-saas)
