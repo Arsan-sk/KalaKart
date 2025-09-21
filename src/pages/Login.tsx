@@ -21,7 +21,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { supabase } = await import("../../lib/supabaseClient.js");
+      const { supabase } = await import("../../lib/supabaseBrowserClient.js");
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,

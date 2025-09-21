@@ -75,24 +75,56 @@ const Register = () => {
           data: {
             username: formData.username,
             phone: formData.phone,
-            businessName: formData.businessName, // Added for Supabase trigger
-            craftCategory: formData.craftCategory, // Added for Supabase trigger
-            location: formData.location, // Added for Supabase trigger
-            language: formData.language || "en", // Added for Supabase trigger
+            businessName: formData.businessName,
+            craftCategory: formData.craftCategory,
+            location: formData.location,
+            language: formData.language || "en",
+            bio: formData.bio,
           },
         },
       });
       if (error) throw error;
-      // The profile creation via /api/profile/create is now handled by a Supabase Database Trigger.
-      // No need for explicit API call here.
+      
+      // Manually update profile table since we can't rely on triggers in this setup
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: data.user?.id,
+          username: formData.username,
+          email: formData.email,
+          phone: formData.phone,
+          business_name: formData.businessName,
+          craft_category: formData.craftCategory,
+          location: formData.location,
+          language: formData.language || "en",
+          bio: formData.bio,
+          updated_at: new Date().toISOString(),
+        });
+        
+      if (profileError) {
+        console.error("Profile update error:", profileError);
+        toast({
+          title: "Profile update issue",
+          description: "Account created but profile details may be incomplete.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Registration successful!",
+          description: "Your profile has been created.",
+        });
+      }
 
-      toast({
-        title: "Registration successful!",
-        description: "Your profile has been created.",
+      // Sign in the user immediately after registration
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
       });
-
-      // Navigate to dashboard upon success
-      navigate('/dashboard');
+      
+      if (!signInError) {
+        // Navigate to dashboard upon success
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       console.error("Registration error", err);
       toast({
