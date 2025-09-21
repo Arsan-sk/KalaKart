@@ -107,6 +107,15 @@ GOOGLE_TRANSLATE_KEY=<your_google_translate_api_key>
 
 Replace <...> with your actual credentials from Supabase and Google Cloud.
 
+### For Vercel Deployment
+When deploying to Vercel, ensure you set these environment variables in your Vercel Project Settings under "Environment Variables".
+
+-   `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase Project URL (exposed to client-side)
+-   `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase Anon Key (exposed to client-side)
+-   `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase Service Role Key (server-side only)
+-   `GEMINI_API_KEY`: Your Google Gemini API Key (server-side only)
+-   `GOOGLE_TRANSLATE_KEY`: Your Google Translate API Key (server-side only)
+
 ---
 
 ## Running Project

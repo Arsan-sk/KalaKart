@@ -67,7 +67,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const { supabase } = await import("../../lib/supabaseClient.js");
+      const { supabase } = await import("../../lib/supabaseBrowserClient.js");
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -75,30 +75,16 @@ const Register = () => {
           data: {
             username: formData.username,
             phone: formData.phone,
+            businessName: formData.businessName, // Added for Supabase trigger
+            craftCategory: formData.craftCategory, // Added for Supabase trigger
+            location: formData.location, // Added for Supabase trigger
+            language: formData.language || "en", // Added for Supabase trigger
           },
         },
       });
       if (error) throw error;
-      const userId = data.user?.id;
-      if (!userId) throw new Error("Could not get user id from sign up");
-
-      // Create profile via server API to use service role key
-      const res = await fetch("/api/profile/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          business_name: formData.businessName,
-          craft_category: formData.craftCategory,
-          location: formData.location,
-          social_links: null,
-          language_pref: formData.language || "en",
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Profile create failed (${res.status})`);
-      }
+      // The profile creation via /api/profile/create is now handled by a Supabase Database Trigger.
+      // No need for explicit API call here.
 
       toast({
         title: "Registration successful!",

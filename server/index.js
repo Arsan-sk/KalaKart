@@ -18,7 +18,11 @@ if (url && serviceRoleKey) {
   supabaseAdmin = createClient(url, serviceRoleKey, { auth: { persistSession: false } });
   console.log('[server] Supabase admin client initialized successfully');
 } else {
-  console.warn('[server] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. API endpoints will respond with configuration error until set.');
+  console.warn(
+    '[server] Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. ' +
+    'Ensure these are set as environment variables in Vercel Project Settings or your local .env file. ' +
+    'API endpoints will respond with configuration error until set.'
+  );
 }
 
 const app = express();
@@ -55,10 +59,13 @@ app.use((req, res, next) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, env: {
-    hasUrl: Boolean(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL),
-    hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-  }});
+  res.json({
+    ok: true,
+    env: {
+      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL),
+      hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    }
+  });
 });
 
 // Profile creation endpoint using service role key.
@@ -79,14 +86,16 @@ app.post('/api/profile/create', async (req, res) => {
 
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .insert([{ 
-        user_id: payload.user_id,
-        business_name: payload.business_name || null,
-        craft_category: payload.craft_category || null,
-        location: payload.location || null,
-        social_links: payload.social_links || null,
-        language_pref: payload.language_pref || 'en',
-      }])
+      .upsert([
+        {
+          user_id: payload.user_id,
+          business_name: payload.business_name || null,
+          craft_category: payload.craft_category || null,
+          location: payload.location || null,
+          social_links: payload.social_links || null,
+          language_pref: payload.language_pref || 'en',
+        },
+      ], { onConflict: 'user_id' })
       .select();
 
     if (error) {
